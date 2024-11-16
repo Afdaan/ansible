@@ -1,12 +1,27 @@
 ---
-- name: Install MySQL on all MySQL servers
-  hosts: mysql_servers
+- name: Setup New VMs
+  hosts: ubuntu_servers
   become: true
+
   tasks:
-    - name: Update apt cache
+    - name: Update and Upgrade APT packages
       ansible.builtin.apt:
         update_cache: yes
-        force_apt_get: yes
+        upgrade: dist
+
+    - name: Install basic utilities
+      ansible.builtin.apt:
+        name:
+          - curl
+          - wget
+          - vim
+          - git
+        state: present
+
+    - name: Install OpenSSH server
+      ansible.builtin.apt:
+        name: openssh-server
+        state: present
 
     - name: Install MySQL server
       ansible.builtin.apt:
@@ -19,7 +34,27 @@
         state: started
         enabled: true
 
+    - name: set the MySQL root password
+      ansible.builtin.mysql_user:
+        name: root
+        password: "{{ mysql_root_password }}"
+        host: localhost
+        state: present
+
+    - name: Remove anonymous users
+      ansible.builtin.mysql_user:
+        name: ""
+        host: localhost
+        state: absent
+
+    - name: Remove test database
+      ansible.builtin.mysql_db:
+        name: test
+        state: absent
+
+    - name: Create a new MySQL user
+      ansible.builtin.mysql_user:
+
     - name: Set root password and secure MySQL installation
       ansible.builtin.command: >
         mysql_secure_installation
-
