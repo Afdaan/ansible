@@ -3,6 +3,11 @@
   hosts: ubuntu_servers
   become: true
 
+  vars:
+    mysql_root_password: "your_root_secure_password" # Ganti dengan password root yang diinginkan
+    mysql_user: "newuser" # Ganti dengan username yang diinginkan
+    mysql_user_password: "your_secure_user_password" # Ganti dengan password user yang diinginkan
+
   tasks:
     - name: Update and Upgrade APT packages
       ansible.builtin.apt:
@@ -34,7 +39,7 @@
         state: started
         enabled: true
 
-    - name: set the MySQL root password
+    - name: Set the MySQL root password
       ansible.builtin.mysql_user:
         name: root
         password: "{{ mysql_root_password }}"
@@ -58,12 +63,8 @@
         password: "{{ mysql_user_password }}"
         host: localhost
         state: present
-        privileges: "*.*:ALL" # Give all privileges to all database
+        privileges: "*.*:ALL" # Memberikan semua hak akses ke semua database
 
     - name: Reload privileges table
       ansible.builtin.command: >
         mysql -u root -p{{ mysql_root_password }} -e "FLUSH PRIVILEGES;"
-
-    - name: Set root password and secure MySQL installation
-      ansible.builtin.command: >
-        mysql_secure_installation
