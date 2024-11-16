@@ -54,6 +54,15 @@
 
     - name: Create a new MySQL user
       ansible.builtin.mysql_user:
+        name: "{{ mysql_user }}"
+        password: "{{ mysql_user_password }}"
+        host: localhost
+        state: present
+        privileges: "*.*:ALL" # Give all privileges to all database
+
+    - name: Reload privileges table
+      ansible.builtin.command: >
+        mysql -u root -p{{ mysql_root_password }} -e "FLUSH PRIVILEGES;"
 
     - name: Set root password and secure MySQL installation
       ansible.builtin.command: >
