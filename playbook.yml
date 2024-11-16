@@ -1,0 +1,25 @@
+---
+- name: Install MySQL on all MySQL servers
+  hosts: mysql_servers
+  become: true
+  tasks:
+    - name: Update apt cache
+      ansible.builtin.apt:
+        update_cache: yes
+        force_apt_get: yes
+
+    - name: Install MySQL server
+      ansible.builtin.apt:
+        name: mysql-server
+        state: present
+
+    - name: Start MySQL service
+      ansible.builtin.service:
+        name: mysql
+        state: started
+        enabled: true
+
+    - name: Set root password and secure MySQL installation
+      ansible.builtin.command: >
+        mysql_secure_installation
+
